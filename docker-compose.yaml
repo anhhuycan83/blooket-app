@@ -1,0 +1,27 @@
+name: blooket-web-stack
+
+services:
+    cloudflared:
+        container_name: blooket-web-tunnel
+        image: cloudflare/cloudflared:latest
+        command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+        restart: always
+        networks:
+            - app-network
+
+    blooket-web:
+        container_name: blooket-web
+        image: nginx:alpine
+        restart: always
+        volumes:
+            - /sd/stacks/blooket/web/dist:/usr/share/nginx/html:ro
+            - /sd/stacks/blooket/web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+        ports:
+            - "3016:80"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        external: true
+        name: app-network
