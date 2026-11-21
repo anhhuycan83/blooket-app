@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173374365762",
+    "project_id": "blooket-app",
+    "storage_bucket": "blooket-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173374365762:android:4273948b03430aabec0ddb",
+        "android_client_info": {
+          "package_name": "com.blooket.learn.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYptKtKGSuGeRtcA9vKZ5bYKsIadkf8mg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

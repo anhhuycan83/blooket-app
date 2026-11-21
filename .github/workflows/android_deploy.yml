@@ -1,0 +1,110 @@
+name: Android CI/CD (Firebase & Google Play)
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deploy target (firebase or playstore)'
+        required: true
+        default: 'firebase'
+        type: choice
+        options:
+          - firebase
+          - playstore
+
+jobs:
+  build-and-distribute:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      # 1. Checkout repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Java 17 for Android build
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # 3. Setup Ruby & Bundler for Fastlane
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: frontend/android
+
+      # 4. Setup Flutter SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+          cache: true
+
+      # 5. Restore Signing Keystore & Google Credentials
+      - name: Setup Keystore & Credentials
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          FIREBASE_SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          PLAYSTORE_SA_JSON: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          mkdir -p android/app
+          # Decode Keystore
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+            echo "Restored upload-keystore.jks"
+          fi
+
+          # Decode Firebase Service Account JSON
+          if [ -n "$FIREBASE_SA_JSON" ]; then
+            echo "$FIREBASE_SA_JSON" > android/fastlane/firebase-sa.json
+            echo "Restored firebase-sa.json"
+          fi
+
+          # Decode Google Play Service Account JSON
+          if [ -n "$PLAYSTORE_SA_JSON" ]; then
+            echo "$PLAYSTORE_SA_JSON" > android/fastlane/playstore-sa.json
+            echo "Restored playstore-sa.json"
+          fi
+
+      # 6. Run Fastlane Lane: Firebase App Distribution (On main push or manual 'firebase')
+      - name: Distribute to Firebase Testers
+        if: github.ref == 'refs/heads/main' || github.event.inputs.target == 'firebase'
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID || '1:173374365762:android:4273948b03430aabec0ddb' }}
+          FIREBASE_TESTER_GROUP: ${{ secrets.FIREBASE_TESTER_GROUP || 'blooket-app-tester' }}
+          FIREBASE_SERVICE_ACCOUNT_PATH: 'firebase-sa.json'
+        run: |
+          flutter pub get
+          cd android
+          bundle exec fastlane distribute_firebase
+
+      # 7. Run Fastlane Lane: Google Play Console (On version tags v* or manual 'playstore')
+      - name: Promote to Google Play Store
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
+        env:
+          SUPPLY_JSON_KEY: 'playstore-sa.json'
+        run: |
+          flutter pub get
+          cd android
+          bundle exec fastlane promote_playstore
+
+      # 8. Upload Artifacts for backup/download in GitHub Actions
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-release-apk
+          path: frontend/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: ignore

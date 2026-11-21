@@ -1,0 +1,34 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build APK & Distribute to Firebase App Distribution"
+  lane :distribute_firebase do
+    # 1. Build release APK using flutter
+    sh("flutter build apk --release")
+
+    # 2. Upload to Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"] || "1:173374365762:android:4273948b03430aabec0ddb",
+      service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_PATH"] || "firebase-sa.json",
+      groups: ENV["FIREBASE_TESTER_GROUP"] || "blooket-app-tester",
+      release_notes: "Blooket Learning App - New release from automated CI/CD pipeline",
+      android_artifact_type: "APK",
+      apk_path: "../build/app/outputs/flutter-apk/app-release.apk"
+    )
+  end
+
+  desc "Build AAB & Upload to Google Play Console (Closed/Internal Testing Track)"
+  lane :promote_playstore do
+    # 1. Build release AAB using flutter
+    sh("flutter build appbundle --release")
+
+    # 2. Upload to Google Play Closed Testing Track
+    upload_to_play_store(
+      track: "internal", # or "closed" for 20 testers requirement
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

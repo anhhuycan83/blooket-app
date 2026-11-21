@@ -16,10 +16,12 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Android Keystore & Secret keys
+*.jks
+*.keystore
+keystore_base64.txt
+key.properties
+google-services-sa.json
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -30,6 +32,12 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+
+# Fastlane
+android/fastlane/report.xml
+android/fastlane/Preview.html
+android/fastlane/screenshots
+android/fastlane/README.md
 
 # Symbolication related
 app.*.symbols
