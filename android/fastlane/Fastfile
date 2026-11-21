@@ -23,7 +23,9 @@ platform :android do
     sh("flutter build appbundle --release")
 
     # 2. Upload to Google Play Closed Testing Track
+    sa_path = ENV["SUPPLY_JSON_KEY"] || "playstore-sa.json"
     upload_to_play_store(
+      json_key: sa_path,
       track: "internal", # or "closed" for 20 testers requirement
       aab: "../build/app/outputs/bundle/release/app-release.aab",
       skip_upload_metadata: true,

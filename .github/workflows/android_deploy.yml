@@ -57,7 +57,7 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           FIREBASE_SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          PLAYSTORE_SA_JSON: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
+          PLAYSTORE_SA_JSON: ${{ secrets.PLAYSTORE_SA_JSON || secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
         run: |
           mkdir -p android/app
           mkdir -p android/fastlane
@@ -72,7 +72,6 @@ jobs:
 
           # Decode Firebase Service Account JSON
           if [ -n "$FIREBASE_SA_JSON" ]; then
-            # Write JSON directly to both android/fastlane and root
             printf "%s" "$FIREBASE_SA_JSON" > android/fastlane/firebase-sa.json
             printf "%s" "$FIREBASE_SA_JSON" > firebase-sa.json
             echo "Successfully restored firebase-sa.json (size: $(wc -c < firebase-sa.json) bytes)"
@@ -83,7 +82,10 @@ jobs:
           # Decode Google Play Service Account JSON
           if [ -n "$PLAYSTORE_SA_JSON" ]; then
             printf "%s" "$PLAYSTORE_SA_JSON" > android/fastlane/playstore-sa.json
-            echo "Successfully restored playstore-sa.json"
+            printf "%s" "$PLAYSTORE_SA_JSON" > playstore-sa.json
+            echo "Successfully restored playstore-sa.json (size: $(wc -c < playstore-sa.json) bytes)"
+          else
+            echo "WARNING: PLAYSTORE_SA_JSON secret is empty or not set!"
           fi
 
       # 6. Run Fastlane Lane: Firebase App Distribution (On main push or manual 'firebase')
@@ -102,7 +104,7 @@ jobs:
       - name: Promote to Google Play Store
         if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
         env:
-          SUPPLY_JSON_KEY: 'playstore-sa.json'
+          SUPPLY_JSON_KEY: '/home/runner/work/blooket-app/blooket-app/playstore-sa.json'
         run: |
           flutter pub get
           cd android
@@ -115,4 +117,12 @@ jobs:
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: ignore
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: ignore
