@@ -5,7 +5,7 @@ import 'ui/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Text to Speech service (Auto CI/CD verified)
+  // Initialize Text to Speech service (Android CI/CD v1.0.0)
   await TtsService().init();
   runApp(const BlooketLearnApp());
 }
