@@ -38,7 +38,8 @@ android {
 
     defaultConfig {
         applicationId = "com.blooket.learn.frontend"
-        minSdk = 21
+        // flutter_tts requires minSdk 24 (Android 7.0+)
+        minSdk = 24
         targetSdk = 36
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
