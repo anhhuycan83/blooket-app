@@ -4,6 +4,7 @@ import '../../services/data_service.dart';
 import '../../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/grade_tab_bar.dart';
+import 'settings_screen.dart';
 import 'weeks_screen.dart';
 
 class SubjectsScreen extends StatefulWidget {
@@ -78,6 +79,16 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.settings_rounded, color: AppColors.primary, size: 26),
+          tooltip: 'Cài đặt & About',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            );
+          },
+        ),
         title: const Text('Blooket Học Tập & Ôn Luyện'),
         actions: [
           // Total Flags badge
