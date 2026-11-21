@@ -60,22 +60,30 @@ jobs:
           PLAYSTORE_SA_JSON: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
         run: |
           mkdir -p android/app
+          mkdir -p android/fastlane
+
           # Decode Keystore
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
-            echo "Restored upload-keystore.jks"
+            echo "Successfully restored upload-keystore.jks (size: $(wc -c < android/app/upload-keystore.jks) bytes)"
+          else
+            echo "WARNING: KEYSTORE_BASE64 secret is not set!"
           fi
 
           # Decode Firebase Service Account JSON
           if [ -n "$FIREBASE_SA_JSON" ]; then
-            echo "$FIREBASE_SA_JSON" > android/fastlane/firebase-sa.json
-            echo "Restored firebase-sa.json"
+            # Write JSON directly to both android/fastlane and root
+            printf "%s" "$FIREBASE_SA_JSON" > android/fastlane/firebase-sa.json
+            printf "%s" "$FIREBASE_SA_JSON" > firebase-sa.json
+            echo "Successfully restored firebase-sa.json (size: $(wc -c < firebase-sa.json) bytes)"
+          else
+            echo "WARNING: FIREBASE_SERVICE_ACCOUNT_JSON secret is empty or not set!"
           fi
 
           # Decode Google Play Service Account JSON
           if [ -n "$PLAYSTORE_SA_JSON" ]; then
-            echo "$PLAYSTORE_SA_JSON" > android/fastlane/playstore-sa.json
-            echo "Restored playstore-sa.json"
+            printf "%s" "$PLAYSTORE_SA_JSON" > android/fastlane/playstore-sa.json
+            echo "Successfully restored playstore-sa.json"
           fi
 
       # 6. Run Fastlane Lane: Firebase App Distribution (On main push or manual 'firebase')
@@ -84,7 +92,7 @@ jobs:
         env:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID || '1:173374365762:android:4273948b03430aabec0ddb' }}
           FIREBASE_TESTER_GROUP: ${{ secrets.FIREBASE_TESTER_GROUP || 'blooket-app-tester' }}
-          FIREBASE_SERVICE_ACCOUNT_PATH: 'firebase-sa.json'
+          FIREBASE_SERVICE_ACCOUNT_PATH: '/home/runner/work/blooket-app/blooket-app/firebase-sa.json'
         run: |
           flutter pub get
           cd android
