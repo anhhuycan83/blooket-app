@@ -19,9 +19,6 @@ on:
 jobs:
   build-and-distribute:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
       # 1. Checkout repository code
@@ -36,13 +33,16 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      # 3. Setup Ruby & Bundler for Fastlane
+      # 3. Setup Ruby & Fastlane
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: frontend/android
+
+      - name: Install Fastlane & Plugins
+        run: |
+          cd android
+          bundle install
 
       # 4. Setup Flutter SDK
       - name: Setup Flutter
@@ -106,5 +106,5 @@ jobs:
         if: always()
         with:
           name: app-release-apk
-          path: frontend/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: ignore
