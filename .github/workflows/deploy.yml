@@ -1,0 +1,62 @@
+name: Build & Deploy Flutter Web
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'lib/**'
+      - 'assets/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout Flutter Source Code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Flutter SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+          cache: true
+
+      # 3. Build Flutter Web Release
+      - name: Build Web Release
+        run: |
+          flutter pub get
+          flutter build web --release
+
+      # 4. Install cloudflared & Setup SSH Proxy
+      - name: Setup SSH via Cloudflare Tunnel
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+          rm cloudflared.deb
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          cat << 'EOF' > ~/.ssh/config
+          Host ${{ secrets.SSH_HOST }}
+              User sa
+              IdentityFile ~/.ssh/id_rsa
+              StrictHostKeyChecking no
+              ProxyCommand cloudflared access ssh --hostname %h
+          EOF
+
+      # 5. Sync dist files directly to Armbian web storage
+      - name: Deploy Web to Armbian Server
+        run: |
+          echo "=== [1/2] Syncing build files to /sd/stacks/blooket/web/dist ==="
+          rsync -avz --delete -e ssh build/web/ sa@${{ secrets.SSH_HOST }}:/sd/stacks/blooket/web/dist/
+
+          echo "=== [2/2] Ensuring correct permissions (755) ==="
+          ssh sa@${{ secrets.SSH_HOST }} "chmod -R 755 /sd/stacks/blooket/web/dist && docker restart blooket-web"
+          echo "Frontend Web Deployment Successful!"
