@@ -17,12 +17,13 @@ platform :android do
     )
   end
 
-  desc "Build AAB & Upload to Google Play Console (Closed/Internal Testing Track)"
+  desc "Build AAB + APK & Upload to Google Play Console"
   lane :promote_playstore do
-    # 1. Build release AAB using flutter
+    # 1. Build both release AAB (for Play Store) and APK (for GitHub Releases download)
     sh("flutter build appbundle --release")
+    sh("flutter build apk --release")
 
-    # 2. Upload to Google Play Closed Testing Track
+    # 2. Upload to Google Play Closed/Internal Testing Track
     sa_path = ENV["SUPPLY_JSON_KEY"] || "playstore-sa.json"
     upload_to_play_store(
       json_key: sa_path,
