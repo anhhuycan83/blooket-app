@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/curriculum.dart';
 import '../../services/data_service.dart';
+import '../../services/release_notes_data.dart';
 import '../../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/grade_tab_bar.dart';
@@ -89,7 +90,41 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
             );
           },
         ),
-        title: const Text('Blooket Học Tập & Ôn Luyện'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Blooket Học Tập & Ôn Luyện'),
+            const SizedBox(width: 8),
+            // Version Chip (Clickable for Release Notes)
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => ReleaseNotesData.showReleaseNotesDialog(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.4), width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'v${ReleaseNotesData.currentVersion}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    const Icon(Icons.info_outline_rounded, size: 12, color: AppColors.primary),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
           // Total Flags badge
           Container(
@@ -297,6 +332,33 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                           );
                         },
                       ),
+              ),
+
+              // Web Footer: Version & Release Notes link
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Blooket Ôn Luyện v${ReleaseNotesData.currentVersion} (${ReleaseNotesData.currentBuild})',
+                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    ),
+                    const Text(' • ', style: TextStyle(color: AppColors.textMuted)),
+                    InkWell(
+                      onTap: () => ReleaseNotesData.showReleaseNotesDialog(context),
+                      child: const Text(
+                        'Xem nhật ký cập nhật (Release Notes)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

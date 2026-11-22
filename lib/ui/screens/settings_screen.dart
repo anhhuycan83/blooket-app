@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/release_notes_data.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -155,6 +156,24 @@ class SettingsScreen extends StatelessWidget {
                       subtitle: const Text('Tác giả, phiên bản và thông tin hệ thống'),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
                       onTap: () => _showAboutDialog(context),
+                    ),
+                    const Divider(height: 1, indent: 56),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.purple.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.history_edu_rounded, color: AppColors.purple),
+                      ),
+                      title: const Text(
+                        'Nhật ký cập nhật (Release Notes)',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: const Text('Xem lịch sử tính năng mới & các lỗi đã fix'),
+                      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                      onTap: () => ReleaseNotesData.showReleaseNotesDialog(context),
                     ),
                     const Divider(height: 1, indent: 56),
                     ListTile(
