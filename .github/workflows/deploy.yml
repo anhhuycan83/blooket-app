@@ -25,8 +25,7 @@ jobs:
       - name: Build Web Release
         run: |
           flutter pub get
-          flutter analyze || true
-          flutter build web --release 2>&1 | tee build_web.log || (echo "=== BUILD ERROR LOG ===" && cat build_web.log && exit 1)
+          flutter build web --release --no-tree-shake-icons
 
       # 4. Install cloudflared & Setup SSH Proxy
       - name: Setup SSH via Cloudflare Tunnel
