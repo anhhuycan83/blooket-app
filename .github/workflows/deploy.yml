@@ -25,11 +25,12 @@ jobs:
       - name: Build Web Release
         run: |
           flutter pub get
-          flutter build web --release 2> error.txt || true
-          if [ -s error.txt ]; then
-            echo "::error::$(cat error.txt | head -n 30)"
-          fi
-          test -f build/web/index.html || (cat error.txt && exit 1)
+          flutter analyze || true
+          flutter build web --release 2>&1 | tee build_web.log || true
+          cat build_web.log | grep -E "Error|Exception|failed|lib/" | head -n 40 > summary.txt
+          ERR_MSG=$(head -n 10 summary.txt | tr '\n' ' ' | sed 's/"/\\"/g')
+          echo "::error title=Dart2js Failure::$ERR_MSG"
+          test -f build/web/index.html || exit 1
 
       # 4. Install cloudflared & Setup SSH Proxy
       - name: Setup SSH via Cloudflare Tunnel
