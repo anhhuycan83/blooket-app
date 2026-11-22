@@ -262,7 +262,6 @@ class _WeeksScreenState extends State<WeeksScreen> {
                             ),
                           );
                         },
-                        },
                       ),
               ),
 
