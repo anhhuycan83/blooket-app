@@ -25,6 +25,20 @@ class AppColors {
   static const Color textMain = Color(0xFF1E293B);
   static const Color textMuted = Color(0xFF64748B);
   static const Color border = Color(0xFFE2E8F0);
+
+  /// Parse a hex color string like "#4F46E5" or "#FFFBEB" into a Flutter Color
+  static Color? parseHex(String? hexString) {
+    if (hexString == null || hexString.isEmpty) return null;
+    try {
+      final buffer = StringBuffer();
+      final clean = hexString.replaceFirst('#', '');
+      if (clean.length == 6) buffer.write('ff');
+      buffer.write(clean);
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 class AppTheme {

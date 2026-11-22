@@ -66,9 +66,13 @@ class _LessonHubScreenState extends State<LessonHubScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.week == 10
-            ? '${widget.subject.name} - Review Final Test 1 ⭐'
-            : '${widget.subject.name} - Tuần ${widget.week}'),
+        title: Builder(
+          builder: (context) {
+            final matching = widget.subject.weeks.where((w) => w.weekNumber == widget.week);
+            final title = matching.isNotEmpty ? matching.first.subTitle : 'Tuần ${widget.week}';
+            return Text('${widget.subject.name} - $title');
+          },
+        ),
         centerTitle: true,
       ),
       body: Center(

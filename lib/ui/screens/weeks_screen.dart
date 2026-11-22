@@ -38,10 +38,10 @@ class _WeeksScreenState extends State<WeeksScreen> {
   Future<void> _loadProgress() async {
     setState(() => _isLoading = true);
     final gradeNum = widget.grades[_selectedGradeIndex].gradeNumber;
-    for (int w = 1; w <= widget.subject.totalWeeks; w++) {
-      final lessonId = 'g${gradeNum}_${widget.subject.id}_w$w';
+    for (final week in widget.subject.weeks) {
+      final lessonId = 'g${gradeNum}_${widget.subject.id}_w${week.weekNumber}';
       final prog = await StorageService().getProgress(lessonId);
-      _weekProgressMap[w] = prog;
+      _weekProgressMap[week.weekNumber] = prog;
     }
     if (mounted) {
       setState(() => _isLoading = false);
@@ -147,15 +147,19 @@ class _WeeksScreenState extends State<WeeksScreen> {
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
-                        itemCount: widget.subject.totalWeeks,
+                        itemCount: widget.subject.weeks.length,
                         itemBuilder: (context, index) {
-                          final weekNumber = index + 1;
-                          final isWeek10 = weekNumber == 10;
-                          final isWeek9 = weekNumber == 9;
-                          final isHighlighted = isWeek10 || isWeek9;
+                          final weekItem = widget.subject.weeks[index];
+                          final weekNumber = weekItem.weekNumber;
                           final progress = _weekProgressMap[weekNumber];
                           final hasDone = progress?.exercisesCompleted ?? false;
                           final flags = progress?.flagsEarned ?? 0;
+
+                          final itemColor = AppColors.parseHex(weekItem.color) ?? AppColors.textMain;
+                          final itemBg = AppColors.parseHex(weekItem.bgColor) ??
+                              (hasDone ? const Color(0xFFF0FDF4) : Colors.white);
+                          final itemBorder = AppColors.parseHex(weekItem.borderColor) ??
+                              (hasDone ? AppColors.success : AppColors.border);
 
                           return InkWell(
                             borderRadius: BorderRadius.circular(18),
@@ -176,24 +180,15 @@ class _WeeksScreenState extends State<WeeksScreen> {
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isWeek10
-                                    ? const Color(0xFFFFFBEB)
-                                    : (isWeek9 ? const Color(0xFFFAF5FF) : Colors.white),
+                                color: itemBg,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: isWeek10
-                                      ? const Color(0xFFD97706)
-                                      : (isWeek9
-                                          ? AppColors.purple
-                                          : (hasDone ? AppColors.success : AppColors.border)),
-                                  width: isHighlighted ? 2.5 : 1.5,
+                                  color: itemBorder,
+                                  width: weekItem.isHighlighted ? 2.5 : 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (isWeek10
-                                            ? const Color(0xFFD97706)
-                                            : (isWeek9 ? AppColors.purple : Colors.black))
-                                        .withOpacity(0.08),
+                                    color: itemBorder.withOpacity(0.08),
                                     offset: const Offset(0, 4),
                                     blurRadius: 10,
                                   ),
@@ -202,37 +197,34 @@ class _WeeksScreenState extends State<WeeksScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  // Week Title (W1, W2, etc.)
+                                  // Week Title (W1, W2, etc.) & Emoji
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'W$weekNumber',
+                                        weekItem.title,
                                         style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w900,
-                                          color: isWeek10
-                                              ? const Color(0xFFB45309)
-                                              : (isWeek9 ? AppColors.purple : AppColors.textMain),
+                                          color: itemColor,
                                         ),
                                       ),
-                                      if (isWeek10) ...[
+                                      if (weekItem.emoji != null && weekItem.emoji!.isNotEmpty) ...[
                                         const SizedBox(width: 4),
-                                        const Text('👑', style: TextStyle(fontSize: 16)),
-                                      ] else if (isWeek9) ...[
-                                        const SizedBox(width: 4),
-                                        const Text('⭐', style: TextStyle(fontSize: 16)),
+                                        Text(weekItem.emoji!, style: const TextStyle(fontSize: 16)),
                                       ],
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    isWeek10 ? 'Ôn thi Cuối Kì 1' : 'Tuần $weekNumber',
+                                    weekItem.subTitle,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: isWeek10 ? const Color(0xFF92400E) : AppColors.textMuted,
+                                      color: weekItem.isHighlighted ? itemColor : AppColors.textMuted,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 8),
 
@@ -242,11 +234,9 @@ class _WeeksScreenState extends State<WeeksScreen> {
                                     decoration: BoxDecoration(
                                       color: hasDone
                                           ? AppColors.success.withOpacity(0.12)
-                                          : (isWeek10
-                                              ? const Color(0xFFFEF3C7)
-                                              : (isWeek9
-                                                  ? AppColors.purple.withOpacity(0.12)
-                                                  : const Color(0xFFF1F5F9))),
+                                          : (weekItem.isHighlighted
+                                              ? itemBorder.withOpacity(0.12)
+                                              : const Color(0xFFF1F5F9)),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
@@ -255,17 +245,13 @@ class _WeeksScreenState extends State<WeeksScreen> {
                                         Text(
                                           hasDone
                                               ? '🚩 $flags cờ'
-                                              : (isWeek10
-                                                  ? 'Đề thi FT1'
-                                                  : (isWeek9 ? 'Đề thi sẵn sàng' : 'Chưa học')),
+                                              : (weekItem.badge ?? 'Chưa học'),
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: hasDone
                                                 ? AppColors.success
-                                                : (isWeek10
-                                                    ? const Color(0xFFB45309)
-                                                    : (isWeek9 ? AppColors.purple : AppColors.textMuted)),
+                                                : (weekItem.isHighlighted ? itemColor : AppColors.textMuted),
                                           ),
                                         ),
                                       ],
@@ -275,6 +261,7 @@ class _WeeksScreenState extends State<WeeksScreen> {
                               ),
                             ),
                           );
+                        },
                         },
                       ),
               ),
