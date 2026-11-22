@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../ui/theme/app_theme.dart';
 
 class ReleaseNoteItem {
   final String version;
