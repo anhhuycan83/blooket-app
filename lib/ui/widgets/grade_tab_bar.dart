@@ -113,6 +113,7 @@ class GradeTabBar extends StatelessWidget {
           );
         }),
       ),
-    );
-  }
+    ),
+  );
+}
 }
