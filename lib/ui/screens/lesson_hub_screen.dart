@@ -66,7 +66,9 @@ class _LessonHubScreenState extends State<LessonHubScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.subject.name} - Tuần ${widget.week}'),
+        title: Text(widget.week == 10
+            ? '${widget.subject.name} - Review Final Test 1 ⭐'
+            : '${widget.subject.name} - Tuần ${widget.week}'),
         centerTitle: true,
       ),
       body: Center(

@@ -150,7 +150,9 @@ class _WeeksScreenState extends State<WeeksScreen> {
                         itemCount: widget.subject.totalWeeks,
                         itemBuilder: (context, index) {
                           final weekNumber = index + 1;
+                          final isWeek10 = weekNumber == 10;
                           final isWeek9 = weekNumber == 9;
+                          final isHighlighted = isWeek10 || isWeek9;
                           final progress = _weekProgressMap[weekNumber];
                           final hasDone = progress?.exercisesCompleted ?? false;
                           final flags = progress?.flagsEarned ?? 0;
@@ -174,17 +176,24 @@ class _WeeksScreenState extends State<WeeksScreen> {
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isWeek9 ? const Color(0xFFFAF5FF) : Colors.white,
+                                color: isWeek10
+                                    ? const Color(0xFFFFFBEB)
+                                    : (isWeek9 ? const Color(0xFFFAF5FF) : Colors.white),
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: isWeek9
-                                      ? AppColors.purple
-                                      : (hasDone ? AppColors.success : AppColors.border),
-                                  width: isWeek9 ? 2.5 : 1.5,
+                                  color: isWeek10
+                                      ? const Color(0xFFD97706)
+                                      : (isWeek9
+                                          ? AppColors.purple
+                                          : (hasDone ? AppColors.success : AppColors.border)),
+                                  width: isHighlighted ? 2.5 : 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (isWeek9 ? AppColors.purple : Colors.black).withOpacity(0.06),
+                                    color: (isWeek10
+                                            ? const Color(0xFFD97706)
+                                            : (isWeek9 ? AppColors.purple : Colors.black))
+                                        .withOpacity(0.08),
                                     offset: const Offset(0, 4),
                                     blurRadius: 10,
                                   ),
@@ -202,10 +211,15 @@ class _WeeksScreenState extends State<WeeksScreen> {
                                         style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w900,
-                                          color: isWeek9 ? AppColors.purple : AppColors.textMain,
+                                          color: isWeek10
+                                              ? const Color(0xFFB45309)
+                                              : (isWeek9 ? AppColors.purple : AppColors.textMain),
                                         ),
                                       ),
-                                      if (isWeek9) ...[
+                                      if (isWeek10) ...[
+                                        const SizedBox(width: 4),
+                                        const Text('👑', style: TextStyle(fontSize: 16)),
+                                      ] else if (isWeek9) ...[
                                         const SizedBox(width: 4),
                                         const Text('⭐', style: TextStyle(fontSize: 16)),
                                       ],
@@ -213,11 +227,11 @@ class _WeeksScreenState extends State<WeeksScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Tuần $weekNumber',
-                                    style: const TextStyle(
+                                    isWeek10 ? 'Ôn thi Cuối Kì 1' : 'Tuần $weekNumber',
+                                    style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.textMuted,
+                                      color: isWeek10 ? const Color(0xFF92400E) : AppColors.textMuted,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -228,22 +242,30 @@ class _WeeksScreenState extends State<WeeksScreen> {
                                     decoration: BoxDecoration(
                                       color: hasDone
                                           ? AppColors.success.withOpacity(0.12)
-                                          : (isWeek9
-                                              ? AppColors.purple.withOpacity(0.12)
-                                              : const Color(0xFFF1F5F9)),
+                                          : (isWeek10
+                                              ? const Color(0xFFFEF3C7)
+                                              : (isWeek9
+                                                  ? AppColors.purple.withOpacity(0.12)
+                                                  : const Color(0xFFF1F5F9))),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          hasDone ? '🚩 $flags cờ' : (isWeek9 ? 'Đề thi sẵn sàng' : 'Chưa học'),
+                                          hasDone
+                                              ? '🚩 $flags cờ'
+                                              : (isWeek10
+                                                  ? 'Đề thi FT1'
+                                                  : (isWeek9 ? 'Đề thi sẵn sàng' : 'Chưa học')),
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: hasDone
                                                 ? AppColors.success
-                                                : (isWeek9 ? AppColors.purple : AppColors.textMuted),
+                                                : (isWeek10
+                                                    ? const Color(0xFFB45309)
+                                                    : (isWeek9 ? AppColors.purple : AppColors.textMuted)),
                                           ),
                                         ),
                                       ],
