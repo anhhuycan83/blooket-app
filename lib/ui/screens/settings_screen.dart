@@ -51,7 +51,7 @@ class SettingsScreen extends StatelessWidget {
             const Divider(height: 28),
             _buildInfoRow(Icons.person_rounded, 'Tác giả', 'Huy Pham'),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.verified_rounded, 'Phiên bản', '1.0.5 (Build 5)'),
+            _buildInfoRow(Icons.verified_rounded, 'Phiên bản', '1.0.6 (Build 6)'),
             const SizedBox(height: 10),
             _buildInfoRow(Icons.cloud_done_rounded, 'Backend API', 'Live via Cloudflare Tunnel'),
             const SizedBox(height: 10),

@@ -20,10 +20,25 @@ class ReleaseNoteItem {
 }
 
 class ReleaseNotesData {
-  static const String currentVersion = '1.0.5';
-  static const int currentBuild = 5;
+  static const String currentVersion = '1.0.6';
+  static const int currentBuild = 6;
 
   static const List<ReleaseNoteItem> history = [
+    ReleaseNoteItem(
+      version: 'v1.0.6',
+      date: '22/11/2026',
+      build: 'Build 6',
+      summary: 'Mở rộng Tab TOEIC & Bộ Game ETS 2026 từ kho thẻ Anki',
+      features: [
+        'Thêm Tab Khối Luyện Thi TOEIC mới song song với các Khối Lớp phổ thông.',
+        'Tích hợp 86 thẻ Anki ETS 2026 chuẩn 750+ vào 3 môn học: ETS 2026 Listening (Part 1-4), ETS 2026 Reading (Part 5-6), và Đấu trường Blooket Master.',
+        'Hỗ trợ thanh Tab cuộn ngang mượt mà trên mọi kích thước màn hình thiết bị di động.',
+        'Người dùng Android đã cài app tự động cập nhật Tab TOEIC qua Server-Driven UI mà không cần tải lại app.',
+      ],
+      fixes: [
+        'Tối ưu hóa endpoint API backend hỗ trợ mã định danh khối linh hoạt cho các kỳ thi chứng chỉ.',
+      ],
+    ),
     ReleaseNoteItem(
       version: 'v1.0.5',
       date: '22/11/2026',
