@@ -26,7 +26,7 @@ jobs:
         run: |
           flutter pub get
           flutter analyze || true
-          flutter build web --release --verbose
+          flutter build web --release 2>&1 | tee build_web.log || (echo "=== BUILD ERROR LOG ===" && cat build_web.log && exit 1)
 
       # 4. Install cloudflared & Setup SSH Proxy
       - name: Setup SSH via Cloudflare Tunnel
