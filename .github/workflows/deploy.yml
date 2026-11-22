@@ -30,7 +30,8 @@ jobs:
       - name: Build Web Release
         run: |
           flutter pub get
-          flutter build web --release
+          flutter analyze || true
+          flutter build web --release --verbose
 
       # 4. Install cloudflared & Setup SSH Proxy
       - name: Setup SSH via Cloudflare Tunnel
