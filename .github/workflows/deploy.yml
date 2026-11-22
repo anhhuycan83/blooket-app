@@ -3,11 +3,6 @@ name: Build & Deploy Flutter Web
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'lib/**'
-      - 'assets/**'
-      - 'web/**'
-      - 'pubspec.yaml'
   workflow_dispatch:
 
 jobs:
