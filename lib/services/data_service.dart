@@ -14,7 +14,7 @@ class DataService {
   String? baseUrl = 'https://blooket-api.huypham.io.vn';
 
   // Independent Backend version metadata (populated from /api/v1/curriculum/tree)
-  String backendVersion = '...';
+  String backendVersion = '1.1.0';
   String? backendLastUpdated;
   bool isUsingLiveBackend = false;
 
@@ -46,7 +46,7 @@ class DataService {
       final jsonString = await rootBundle.loadString('assets/data/curriculum_tree.json');
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
       final localVer = data['backendVersion'] as String?;
-      backendVersion = localVer != null ? '$localVer (Offline)' : 'Offline';
+      backendVersion = localVer ?? '1.1.0';
       backendLastUpdated = data['lastUpdated'] as String?;
       isUsingLiveBackend = false;
       final grades = (data['grades'] as List<dynamic>)

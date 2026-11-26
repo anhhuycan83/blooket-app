@@ -20,10 +20,23 @@ class ReleaseNoteItem {
 }
 
 class ReleaseNotesData {
-  static const String currentVersion = '1.0.7';
-  static const int currentBuild = 7;
+  static const String currentVersion = '1.0.8';
+  static const int currentBuild = 8;
 
   static const List<ReleaseNoteItem> history = [
+    ReleaseNoteItem(
+      version: 'v1.0.8',
+      date: '27/11/2026',
+      build: 'Build 8',
+      summary: 'Chuẩn hóa hiển thị phiên bản Backend & Đồng bộ học liệu Offline',
+      features: [
+        'Chuẩn hóa hiển thị Backend Version v1.1.0 chính xác ở mọi trạng thái mạng (online/offline).',
+        'Đồng bộ toàn bộ 52 bài học và 2 môn học mới (Địa Lý và Khoa Học 5 HK1) vào gói dữ liệu offline của app.',
+      ],
+      fixes: [
+        'Khắc phục hiển thị "vOffline" khi ứng dụng nạp dữ liệu từ bộ nhớ đệm cục bộ.',
+      ],
+    ),
     ReleaseNoteItem(
       version: 'v1.0.7',
       date: '26/11/2026',
