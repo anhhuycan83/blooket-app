@@ -1,10 +1,18 @@
 # AGENTS.md — Hướng Dẫn Frontend (Blooket App)
 
-1. **Không push hoặc merge vào `main` khi chưa có lệnh release** vì `deploy.yml` (Web) và `android_deploy.yml` (Firebase APK) chạy tự động trên mọi push `main` (tag `v*` đẩy Google Play).
-2. **Nhánh đang chờ release (`fix/appbar-and-backend-version`):**
-   * Đã fix lỗi AppBar mobile đè chữ tiêu đề & chip version.
-   * Đã tích hợp hiển thị `BE v...` độc lập từ `DataService().backendVersion` ở Footer và Settings -> About.
-   * Đã thêm `RefreshIndicator` kéo xuống làm mới trên `SubjectsScreen`.
-3. **Khi người dùng yêu cầu release `v1.0.7`:**
-   * Đọc `NEXT_BUILD_NOTES.md` để làm nốt các mục còn lại (TTS `vi-VN`, nút Next ở `WeeksScreen`, icon mới, đồng bộ `assets/data/`, nâng version `pubspec.yaml` & `release_notes_data.dart`), rồi mới merge nhánh này vào `main`.
-4. **Phạm vi:** Chỉ Web & Android. **Chưa triển khai iOS** vào thời điểm này.
+1. **Chiến thuật Git Branching chuẩn hóa (BẮT BUỘC TUÂN THỦ):**
+   * **Nhánh `uat` (Pre-release):**
+     * Mọi code thay đổi, sửa lỗi, tính năng mới từ các nhánh feature (`feat/*`, `fix/*`) **bắt buộc phải merge vào `uat` trước**.
+     * **Quy tắc:** Mỗi lần merge vào `uat`, phải tăng phiên bản ứng dụng (`version: X.Y.Z+build` trong `pubspec.yaml`, cập nhật `release_notes_data.dart` và `RELEASE_NOTES.md`).
+     * Khi push vào `uat`: GitHub Actions (`android_deploy.yml`) sẽ tự động build **file APK** và tải lên **Firebase App Distribution** cho nhóm testers (`blooket-app-tester`).
+   * **Nhánh `main` (Production Release):**
+     * **Tuyệt đối KHÔNG push hoặc merge code trực tiếp từ nhánh feature vào `main`**.
+     * `main` chỉ nhận code merge từ `uat` khi người dùng yêu cầu phát hành chính thức phiên bản đó lên Google Play.
+     * Khi merge `uat` vào `main`: GitHub Actions sẽ tự động build **file AAB** đẩy lên **Google Play Console** (track Closed Testing/Production) và build **Web Release** deploy lên server Armbian.
+
+2. **Trạng thái hiện tại trên `uat` (v1.0.7 - Build 7):**
+   * Đã sửa lỗi tiêu đề AppBar mobile bị 2 badge cờ và streak đè lên chữ.
+   * Đã tách biệt và hiển thị thông tin phiên bản Backend (`BE v...`) độc lập ở Footer và màn hình Cài đặt (`About`), không còn hiển thị text `(Live via Cloudflare)`.
+   * Đã bổ sung `RefreshIndicator` kéo xuống làm mới bài học từ Backend.
+
+3. **Phạm vi nền tảng:** Chỉ tập trung Web & Android. **Chưa triển khai iOS / TestFlight** vào thời điểm này.

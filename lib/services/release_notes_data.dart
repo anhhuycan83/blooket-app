@@ -20,10 +20,23 @@ class ReleaseNoteItem {
 }
 
 class ReleaseNotesData {
-  static const String currentVersion = '1.0.6';
-  static const int currentBuild = 6;
+  static const String currentVersion = '1.0.7';
+  static const int currentBuild = 7;
 
   static const List<ReleaseNoteItem> history = [
+    ReleaseNoteItem(
+      version: 'v1.0.7',
+      date: '26/11/2026',
+      build: 'Build 7',
+      summary: 'Tối ưu giao diện AppBar Mobile & Tích hợp hiển thị Version Backend độc lập',
+      features: [
+        'Hiển thị thông tin phiên bản Backend (BE v...) độc lập song song với phiên bản App ở chân trang và màn hình Cài đặt (About).',
+        'Tích hợp tính năng kéo xuống làm mới (Pull-to-Refresh) ngay trên danh sách môn học để cập nhật bài học mới từ Backend tức thì.',
+      ],
+      fixes: [
+        'Khắc phục triệt để lỗi hiển thị đè chữ trên thanh tiêu đề AppBar của thiết bị di động: tự động co giãn kích thước, căn chỉnh khoảng cách và ẩn bớt huy hiệu thừa khi màn hình hẹp.',
+      ],
+    ),
     ReleaseNoteItem(
       version: 'v1.0.6',
       date: '22/11/2026',

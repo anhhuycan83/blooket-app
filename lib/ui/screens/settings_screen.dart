@@ -61,7 +61,7 @@ class SettingsScreen extends StatelessWidget {
             _buildInfoRow(
               Icons.cloud_done_rounded,
               'Data (Backend)',
-              'v${DataService().backendVersion} (${DataService().isUsingLiveBackend ? "Live via Cloudflare" : "Offline"})',
+              'v${DataService().backendVersion}',
             ),
             const SizedBox(height: 10),
             _buildInfoRow(Icons.devices_rounded, 'Nền tảng', 'Web, Android'),
