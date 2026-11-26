@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/data_service.dart';
 import '../../services/release_notes_data.dart';
 import '../theme/app_theme.dart';
 
@@ -51,11 +52,19 @@ class SettingsScreen extends StatelessWidget {
             const Divider(height: 28),
             _buildInfoRow(Icons.person_rounded, 'Tác giả', 'Huy Pham'),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.verified_rounded, 'Phiên bản', '1.0.6 (Build 6)'),
+            _buildInfoRow(
+              Icons.verified_rounded,
+              'App (Frontend)',
+              'v${ReleaseNotesData.currentVersion} (Build ${ReleaseNotesData.currentBuild})',
+            ),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.cloud_done_rounded, 'Backend API', 'Live via Cloudflare Tunnel'),
+            _buildInfoRow(
+              Icons.cloud_done_rounded,
+              'Data (Backend)',
+              'v${DataService().backendVersion} (${DataService().isUsingLiveBackend ? "Live via Cloudflare" : "Offline"})',
+            ),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.devices_rounded, 'Nền tảng', 'Web, Android, iOS'),
+            _buildInfoRow(Icons.devices_rounded, 'Nền tảng', 'Web, Android'),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(12),
@@ -153,7 +162,9 @@ class SettingsScreen extends StatelessWidget {
                         'About (Về ứng dụng)',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      subtitle: const Text('Tác giả, phiên bản và thông tin hệ thống'),
+                      subtitle: Text(
+                        'App v${ReleaseNotesData.currentVersion} • BE v${DataService().backendVersion}',
+                      ),
                       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
                       onTap: () => _showAboutDialog(context),
                     ),
