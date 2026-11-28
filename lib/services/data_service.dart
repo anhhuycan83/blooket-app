@@ -13,6 +13,11 @@ class DataService {
   // Phase 2: Live Backend Domain via Cloudflare Tunnel
   String? baseUrl = 'https://blooket-api.huypham.io.vn';
 
+  // Independent Backend version metadata (populated from /api/v1/curriculum/tree)
+  String backendVersion = '1.1.0';
+  String? backendLastUpdated;
+  bool isUsingLiveBackend = false;
+
   Future<List<GradeItem>> getCurriculumTree() async {
     // 1. Try remote API first if baseUrl is set
     if (baseUrl != null && baseUrl!.isNotEmpty) {
@@ -21,6 +26,11 @@ class DataService {
         final response = await http.get(url).timeout(const Duration(seconds: 5));
         if (response.statusCode == 200) {
           final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+          backendVersion = (data['backendVersion'] as String?) ??
+              (data['version'] as String?) ??
+              'Live';
+          backendLastUpdated = data['lastUpdated'] as String?;
+          isUsingLiveBackend = true;
           final grades = (data['grades'] as List<dynamic>)
               .map((e) => GradeItem.fromJson(e as Map<String, dynamic>))
               .toList();
@@ -35,6 +45,10 @@ class DataService {
     try {
       final jsonString = await rootBundle.loadString('assets/data/curriculum_tree.json');
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
+      final localVer = data['backendVersion'] as String?;
+      backendVersion = localVer ?? '1.1.0';
+      backendLastUpdated = data['lastUpdated'] as String?;
+      isUsingLiveBackend = false;
       final grades = (data['grades'] as List<dynamic>)
           .map((e) => GradeItem.fromJson(e as Map<String, dynamic>))
           .toList();

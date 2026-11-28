@@ -2,7 +2,9 @@ name: Android CI/CD (Firebase & Google Play)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - uat
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -91,9 +93,9 @@ jobs:
             echo "WARNING: PLAYSTORE_SA_JSON secret is empty or not set!"
           fi
 
-      # 6. Run Fastlane Lane: Firebase App Distribution (On main push or manual 'firebase')
-      - name: Distribute to Firebase Testers
-        if: github.ref == 'refs/heads/main' || github.event.inputs.target == 'firebase'
+      # 6. Run Fastlane Lane: Firebase App Distribution (On uat push or manual 'firebase')
+      - name: Distribute APK to Firebase Testers (UAT Pre-release)
+        if: github.ref == 'refs/heads/uat' || github.event.inputs.target == 'firebase'
         env:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID || '1:173374365762:android:4273948b03430aabec0ddb' }}
           FIREBASE_TESTER_GROUP: ${{ secrets.FIREBASE_TESTER_GROUP || 'blooket-app-tester' }}
@@ -103,9 +105,9 @@ jobs:
           cd android
           bundle exec fastlane distribute_firebase
 
-      # 7. Run Fastlane Lane: Google Play Console (On version tags v* or manual 'playstore')
-      - name: Promote to Google Play Store
-        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
+      # 7. Run Fastlane Lane: Google Play Console (On main push, version tags v*, or manual 'playstore')
+      - name: Promote AAB to Google Play Store (Production Release)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
         env:
           SUPPLY_JSON_KEY: '/home/runner/work/blooket-app/blooket-app/playstore-sa.json'
         run: |
@@ -127,19 +129,45 @@ jobs:
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
 
-      # 9. Upload Artifacts for backup in GitHub Actions
+      # 9. Upload Artifacts for backup in GitHub Actions (retain 14 days)
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
           if-no-files-found: ignore
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
-        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target == 'playstore'
         with:
           name: app-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
           if-no-files-found: ignore
+
+      # 10. Notify by email if workflow fails (requires MAIL_USERNAME & MAIL_PASSWORD secrets)
+      - name: Send Email Notification on Failure
+        if: failure() && env.MAIL_USERNAME != '' && env.MAIL_PASSWORD != ''
+        uses: dawidd6/action-send-mail@v3
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[FAILED] ${{ github.repository }} - ${{ github.workflow }} (${{ github.ref_name }})"
+          to: ${{ secrets.MAIL_TO || secrets.MAIL_USERNAME }}
+          from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            Workflow: ${{ github.workflow }}
+            Repository: ${{ github.repository }}
+            Branch / Tag: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
